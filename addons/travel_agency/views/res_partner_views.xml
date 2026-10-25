@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Inherited Contact Form -->
+    <record id="view_partner_form_travel" model="ir.ui.view">
+        <field name="name">res.partner.form.travel</field>
+        <field name="model">res.partner</field>
+        <field name="inherit_id" ref="base.view_partner_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_view_travel_bookings" type="object"
+                        class="oe_stat_button" icon="fa-plane"
+                        invisible="travel_booking_count == 0">
+                    <field name="travel_booking_count" widget="statinfo" string="Trips"/>
+                </button>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Customer Tree View -->
+    <record id="view_travel_customer_tree" model="ir.ui.view">
+        <field name="name">travel.customer.tree</field>
+        <field name="model">res.partner</field>
+        <field name="priority">99</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="phone"/>
+                <field name="email"/>
+                <field name="city"/>
+                <field name="travel_booking_count" string="Trips"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Customer Form View -->
+    <record id="view_travel_customer_form" model="ir.ui.view">
+        <field name="name">travel.customer.form</field>
+        <field name="model">res.partner</field>
+        <field name="priority">99</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_travel_bookings" type="object"
+                                class="oe_stat_button" icon="fa-plane"
+                                invisible="travel_booking_count == 0">
+                            <field name="travel_booking_count" widget="statinfo" string="Trips"/>
+                        </button>
+                    </div>
+
+                    <!-- Customer Information -->
+                    <div class="oe_title">
+                        <h1><field name="name" required="1"/></h1>
+                    </div>
+                    <group>
+                        <field name="phone" required="1" placeholder="+994-12-345-67-89"/>
+                        <field name="email" required="1" placeholder="name@gmail.com"/>
+                        <field name="city" string="City"/>
+                        <field name="street" string="Address"/>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Customer Window Action -->
+    <record id="action_travel_customers" model="ir.actions.act_window">
+        <field name="name">Customers</field>
+        <field name="res_model">res.partner</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('is_company', '=', False), ('user_ids', '=', False)]</field>
+        <field name="context">{'default_is_company': False}</field>
+    </record>
+
+    <!-- Customer Tree View Action -->
+    <record id="action_travel_customers_tree" model="ir.actions.act_window.view">
+        <field name="sequence">1</field>
+        <field name="view_mode">tree</field>
+        <field name="view_id" ref="view_travel_customer_tree"/>
+        <field name="act_window_id" ref="action_travel_customers"/>
+    </record>
+
+    <!-- Customer Form View Action -->
+    <record id="action_travel_customers_form" model="ir.actions.act_window.view">
+        <field name="sequence">2</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_travel_customer_form"/>
+        <field name="act_window_id" ref="action_travel_customers"/>
+    </record>
+
+</odoo>

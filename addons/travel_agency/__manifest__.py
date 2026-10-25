@@ -1,0 +1,20 @@
+{
+    'name': 'Travel Agency',
+    'version': '17.0.1.0.0',
+    'category': 'Services',
+    'summary': 'Manage tours and customer bookings',
+    'depends': ['base'],
+    'data': [
+        'security/security.xml',
+        'security/ir.model.access.csv',
+        'data/sequence.xml',
+        'data/cron.xml',
+        'views/tour_views.xml',
+        'views/booking_views.xml',
+        'views/res_partner_views.xml',
+        'views/menus.xml',
+    ],
+    'demo': ['demo/demo.xml'],
+    'application': True,
+    'license': 'LGPL-3',
+}

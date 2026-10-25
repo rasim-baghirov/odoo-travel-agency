@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem id="menu_travel_root" name="Travel Agency" sequence="50"
+              groups="group_travel_user"/>
+    <menuitem id="menu_travel_tours" name="Tours" parent="menu_travel_root"
+              action="action_travel_tour" sequence="10"/>
+    <menuitem id="menu_travel_bookings" name="Bookings" parent="menu_travel_root"
+              action="action_travel_booking" sequence="20"/>
+    <menuitem id="menu_travel_customers" name="Customers" parent="menu_travel_root"
+              action="action_travel_customers" sequence="30"/>
+</odoo>

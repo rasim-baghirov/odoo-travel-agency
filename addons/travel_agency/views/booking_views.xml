@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Booking Form View -->
+    <record id="view_travel_booking_form" model="ir.ui.view">
+        <field name="name">travel.booking.form</field>
+        <field name="model">travel.booking</field>
+        <field name="arch" type="xml">
+            <form>
+                <!-- Workflow Actions -->
+                <header>
+                    <button name="action_confirm" type="object" string="Confirm"
+                            class="btn-primary" invisible="state != 'draft'"/>
+                    <button name="action_cancel" type="object" string="Cancel"
+                            invisible="state == 'cancelled'"
+                            confirm="Cancel this booking?"/>
+                    <button name="action_reset_draft" type="object" string="Reset to Draft"
+                            invisible="state != 'cancelled'"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,confirmed"/>
+                </header>
+
+                <!-- Booking Information -->
+                <sheet>
+                    <widget name="web_ribbon" title="Confirmed" bg_color="text-bg-success"
+                            invisible="state != 'confirmed'"/>
+                    <widget name="web_ribbon" title="Cancelled" bg_color="text-bg-danger"
+                            invisible="state != 'cancelled'"/>
+
+                    <div class="oe_title"><h1><field name="name"/></h1></div>
+
+                    <group>
+                        <group>
+                            <field name="partner_id" readonly="state != 'draft'"
+                                   domain="[('is_company', '=', False), ('user_ids', '=', False)]"
+                                   context="{'form_view_ref': 'travel_agency.view_travel_customer_form'}"/>
+                            <field name="tour_id" readonly="state != 'draft'"/>
+                            <field name="tour_available_seats" invisible="state != 'draft'"/>
+                            <field name="date_start"/>
+                        </group>
+                        <group>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="persons" readonly="state != 'draft'"/>
+                            <field name="price_unit" readonly="state != 'draft'"/>
+                            <field name="discount_percent"/>
+                            <field name="amount_total"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Booking List View -->
+    <record id="view_travel_booking_tree" model="ir.ui.view">
+        <field name="name">travel.booking.tree</field>
+        <field name="model">travel.booking</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="tour_id"/>
+                <field name="date_start"/>
+                <field name="persons"/>
+                <field name="amount_total" sum="Total"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'confirmed'"
+                       decoration-danger="state == 'cancelled'"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Booking Graph View -->
+    <record id="view_travel_booking_graph" model="ir.ui.view">
+        <field name="name">travel.booking.graph</field>
+        <field name="model">travel.booking</field>
+        <field name="arch" type="xml">
+            <graph string="Bookings" type="bar">
+                <field name="tour_id"/>
+                <field name="amount_total" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
+    <!-- Booking Pivot View -->
+    <record id="view_travel_booking_pivot" model="ir.ui.view">
+        <field name="name">travel.booking.pivot</field>
+        <field name="model">travel.booking</field>
+        <field name="arch" type="xml">
+            <pivot string="Bookings">
+                <field name="tour_id" type="row"/>
+                <field name="state" type="col"/>
+                <field name="amount_total" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <!-- Booking Search View -->
+    <record id="view_travel_booking_search" model="ir.ui.view">
+        <field name="name">travel.booking.search</field>
+        <field name="model">travel.booking</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="partner_id"/>
+                <field name="tour_id"/>
+
+                <filter name="draft" string="Draft" domain="[('state', '=', 'draft')]"/>
+                <filter name="confirmed" string="Confirmed" domain="[('state', '=', 'confirmed')]"/>
+                <filter name="cancelled" string="Cancelled" domain="[('state', '=', 'cancelled')]"/>
+
+                <group expand="0" string="Group By">
+                    <filter name="group_tour" string="Tour" context="{'group_by': 'tour_id'}"/>
+                    <filter name="group_partner" string="Customer" context="{'group_by': 'partner_id'}"/>
+                    <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Booking Window Action -->
+    <record id="action_travel_booking" model="ir.actions.act_window">
+        <field name="name">Bookings</field>
+        <field name="res_model">travel.booking</field>
+        <field name="view_mode">tree,form,graph,pivot</field>
+    </record>
+</odoo>

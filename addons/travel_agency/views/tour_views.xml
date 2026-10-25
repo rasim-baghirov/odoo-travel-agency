@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Form View -->
+    <record id="view_travel_tour_form" model="ir.ui.view">
+        <field name="name">travel.tour.form</field>
+        <field name="model">travel.tour</field>
+        <field name="arch" type="xml">
+            <form>
+                <!-- Workflow Actions -->
+                <header>
+                    <button name="action_open" type="object" string="Open for Booking"
+                            class="btn-primary" invisible="state != 'draft'"
+                            groups="travel_agency.group_travel_manager"/>
+                    <button name="action_open" type="object" string="Reopen for Booking"
+                            class="btn-primary"
+                            invisible="state != 'closed' or available_seats &lt;= 0"
+                            groups="travel_agency.group_travel_manager"/>
+                    <button name="action_close" type="object" string="Close Bookings"
+                            invisible="state != 'open'"
+                            groups="travel_agency.group_travel_manager"/>
+                    <button name="action_reset_draft" type="object" string="Reset to Draft"
+                            invisible="state != 'closed'"
+                            groups="travel_agency.group_travel_manager"/>
+                    <field name="state" widget="statusbar" statusbar_visible="draft,open,closed"/>
+                </header>
+
+                <sheet>
+                    <widget name="web_ribbon" title="Open" bg_color="text-bg-success"
+                            invisible="state != 'open'"/>
+                    <widget name="web_ribbon" title="Closed" bg_color="text-bg-danger"
+                            invisible="state != 'closed'"/>
+
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_bookings" type="object"
+                                class="oe_stat_button" icon="fa-ticket">
+                            <field name="booked_seats" widget="statinfo" string="Booked seats"/>
+                        </button>
+                    </div>
+
+                    <div class="oe_title">
+                        <h1><field name="name" placeholder="Tour name"/></h1>
+                    </div>
+
+                    <group>
+                        <group>
+                            <field name="destination"/>
+                            <field name="date_start"/>
+                            <field name="date_end"/>
+                            <field name="duration"/>
+                        </group>
+
+                        <group>
+                            <field name="currency_id" invisible="1"/>
+                            <field name="price"/>
+                            <field name="max_seats"/>
+                            <field name="available_seats"/>
+                            <field name="booked_seats" string="Seats filled" widget="progressbar"
+                                   options="{'max_value': 'max_seats'}"/>
+                        </group>
+                    </group>
+
+                    <!-- Information -->
+                    <notebook>
+                        <page string="Description">
+                            <field name="description"/>
+                        </page>
+
+                        <page string="Bookings">
+                            <field name="booking_ids" readonly="1">
+                                <tree>
+                                    <field name="name"/>
+                                    <field name="partner_id"/>
+                                    <field name="persons"/>
+                                    <field name="amount_total"/>
+                                    <field name="state" widget="badge"
+                                           decoration-success="state == 'confirmed'"
+                                           decoration-danger="state == 'cancelled'"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <!-- Tree View -->
+    <record id="view_travel_tour_tree" model="ir.ui.view">
+        <field name="name">travel.tour.tree</field>
+        <field name="model">travel.tour</field>
+        <field name="arch" type="xml">
+            <tree>
+                <field name="name"/>
+                <field name="destination"/>
+                <field name="date_start"/>
+                <field name="date_end"/>
+                <field name="price"/>
+                <field name="available_seats"
+                       decoration-danger="available_seats == 0"
+                       decoration-warning="available_seats &gt; 0 and available_seats &lt;= 2"/>
+                <field name="state" widget="badge"
+                       decoration-success="state == 'open'"
+                       decoration-danger="state == 'closed'"/>
+            </tree>
+        </field>
+    </record>
+
+    <!-- Kanban View -->
+    <record id="view_travel_tour_kanban" model="ir.ui.view">
+        <field name="name">travel.tour.kanban</field>
+        <field name="model">travel.tour</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="state" group_create="false">
+                <!-- Kanban Fields -->
+                <field name="name"/>
+                <field name="destination"/>
+                <field name="price"/>
+                <field name="currency_id"/>
+                <field name="date_start"/>
+                <field name="date_end"/>
+                <field name="duration"/>
+                <field name="available_seats"/>
+                <field name="booked_seats"/>
+                <field name="max_seats"/>
+                <field name="state"/>
+
+                <templates>
+                    <t t-name="kanban-box">
+                        <div class="oe_kanban_global_click">
+
+                            <!-- Title and Status -->
+                            <div class="d-flex justify-content-between align-items-start">
+                                <strong class="fs-4"><field name="name"/></strong>
+                                <field name="state" widget="badge"
+                                       decoration-success="state == 'open'"
+                                       decoration-danger="state == 'closed'"/>
+                            </div>
+
+                            <div class="text-muted mt-1">
+                                <i class="fa fa-map-marker me-1" title="Destination"/>
+                                <field name="destination"/>
+                            </div>
+
+                            <div class="text-muted">
+                                <i class="fa fa-calendar me-1" title="Dates"/>
+                                <field name="date_start"/> → <field name="date_end"/>
+                                (<field name="duration"/> d)
+                            </div>
+
+                            <div class="mt-2">
+                                <field name="booked_seats" widget="progressbar"
+                                       options="{'max_value': 'max_seats'}"/>
+                            </div>
+
+                            <div class="d-flex justify-content-between mt-2">
+                                <span><field name="available_seats"/> seats left</span>
+                                <strong><field name="price" widget="monetary"/></strong>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <!-- Calendar View -->
+    <record id="view_travel_tour_calendar" model="ir.ui.view">
+        <field name="name">travel.tour.calendar</field>
+        <field name="model">travel.tour</field>
+        <field name="arch" type="xml">
+            <calendar string="Tours" date_start="date_start" date_stop="date_end"
+                      mode="month" quick_create="0">
+                <field name="name"/>
+                <field name="destination"/>
+            </calendar>
+        </field>
+    </record>
+
+    <!-- Search View -->
+    <record id="view_travel_tour_search" model="ir.ui.view">
+        <field name="name">travel.tour.search</field>
+        <field name="model">travel.tour</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="name"/>
+                <field name="destination"/>
+
+                <filter name="open" string="Open" domain="[('state', '=', 'open')]"/>
+                <filter name="upcoming" string="Upcoming"
+                        domain="[('date_start', '&gt;', context_today().strftime('%Y-%m-%d'))]"/>
+                <filter name="available" string="Has free seats"
+                        domain="[('available_seats', '&gt;', 0)]"/>
+
+                <group expand="0" string="Group By">
+                    <filter name="group_state" string="Status" context="{'group_by': 'state'}"/>
+                    <filter name="group_destination" string="Destination"
+                            context="{'group_by': 'destination'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Window Action -->
+    <record id="action_travel_tour" model="ir.actions.act_window">
+        <field name="name">Tours</field>
+        <field name="res_model">travel.tour</field>
+        <field name="view_mode">kanban,tree,form,calendar</field>
+    </record>
+
+</odoo>
